@@ -1,9 +1,11 @@
 import React from "react";
-import Cell from "./Cell";
 import { connect } from "react-redux";
+import Cell from "./Cell";
 
 class Headers extends React.Component {
   render() {
+    const headers = this.props.headers;
+
     return (
       <div className={"header"}>
         {this.props.headers.map((cell, j) => (
@@ -15,10 +17,7 @@ class Headers extends React.Component {
 }
 
 const mapStateToProps = ({ table }) => ({
-  headers: table.headers
+  headers: table.headers,
 });
 
-export default connect(
-  mapStateToProps,
-  null
-)(Headers);
+export default connect(mapStateToProps, null)(Headers);

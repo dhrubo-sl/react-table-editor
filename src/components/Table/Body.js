@@ -2,36 +2,43 @@ import React from "react";
 import { connect } from "react-redux";
 import Row from "./Row";
 
+import { FixedSizeList as List } from "react-window";
 import { addRow } from "../../reducers";
 
 class Body extends React.Component {
+  renderRow = ({ index, style }) => {
+    const { rows } = this.props;
+    const cells = rows[index];
+    return (
+      <div style={{ ...style, display: "flex" }} key={index}>
+        <Row cells={cells} row={index} isLastRow={index === rows.length - 1} />
+      </div>
+    );
+  };
+
   render() {
     const { rows } = this.props;
+    console.log(rows.length);
+
     return (
-      <div className={"body"}>
-        {rows.length &&
-          rows.map((cells, i) => (
-            <Row
-              cells={cells}
-              row={i}
-              key={"row-" + i}
-              isLastRow={i === rows.length - 1}
-            />
-          ))}
-      </div>
+      <List
+        height={500} // Height of the list viewport
+        itemCount={rows.length} // Total number of rows
+        itemSize={50} // Row height (adjust as needed)
+        width="100%"
+      >
+        {this.renderRow}
+      </List>
     );
   }
 }
 
 const mapStateToProps = ({ table }) => ({
-  rows: table.rows
+  rows: table.rows,
 });
 
 const mapDispatchToProps = {
-  addRow
+  addRow,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Body);
+export default connect(mapStateToProps, mapDispatchToProps)(Body);

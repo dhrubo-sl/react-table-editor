@@ -61,20 +61,20 @@ const getNewCell = ({ value = "", readOnly = null, type = "text" } = {}) => {
     readOnly: false,
   };
 
-  if (readOnly !== null) {
-    cell.readOnly = readOnly;
-  } else if (
-    value === "Survey" ||
-    value === "First Name" ||
-    value === "Mobile"
-  ) {
-    cell.readOnly = true;
-  }
+  // if (readOnly !== null) {
+  //   cell.readOnly = readOnly;
+  // } else if (
+  //   value === "Survey" ||
+  //   value === "First Name" ||
+  //   value === "Mobile"
+  // ) {
+  //   cell.readOnly = true;
+  // }
 
-  if (value === "Mobile") {
-    cell.validate = validateMobileNumber;
-    cell.parse = parseMobileNumber;
-  }
+  // if (value === "Mobile") {
+  //   cell.validate = validateMobileNumber;
+  //   cell.parse = parseMobileNumber;
+  // }
 
   return cell;
 };
@@ -98,30 +98,29 @@ const parseMobileNumber = (number) => {
 };
 
 const initialState = {
-  headers: [
-    {
-      id: 1,
-      type: "text",
-      value: "First Name",
-      readOnly: true,
-    },
-    {
-      id: 2,
-      type: "text",
-      value: "Mobile",
-      readOnly: true,
-      validate: validateMobileNumber,
-      parse: parseMobileNumber,
-    },
-    {
-      id: 3,
-      type: "text",
-      value: "Survey",
-      readOnly: true,
-    },
-  ],
+  // headers: [
+  //   {
+  //     id: 1,
+  //     type: "text",
+  //     value: "First Name",
+  //     readOnly: true,
+  //   },
+  //   {
+  //     id: 2,
+  //     type: "text",
+  //     value: "Mobile",
+  //     readOnly: true,
+  //     validate: validateMobileNumber,
+  //     parse: parseMobileNumber,
+  //   },
+  //   {
+  //     id: 3,
+  //     type: "text",
+  //     value: "Email",
+  //     readOnly: true,
+  //   },
+  // ],
   rows: [],
-  surveys: [],
 };
 
 export default (state = initialState, action) => {
@@ -159,7 +158,6 @@ export default (state = initialState, action) => {
 
       return {
         ...state,
-        headers,
         rows,
       };
     }
@@ -203,51 +201,52 @@ export default (state = initialState, action) => {
       }
 
       // update header
-      const headers = state.headers.map((h, i) => {
-        if (i === column) {
-          h.value = value;
-        }
-        return h;
-      });
-      return { ...state, headers };
+      // const headers = state.headers.map((h, i) => {
+      //   if (i === column) {
+      //     h.value = value;
+      //   }
+      //   return h;
+      // });
+      return { ...state };
     }
     case SET_TABLE: {
       const { rows } = action;
       const headers = rows[0];
-      const body = rows.slice(1);
+      const body = rows;
       // set headers
-      const newHeaders = headers.map((h, i) => getNewCell({ value: h }));
-      // add First Name column if not present
-      const hasFirstNameColumn = newHeaders.find(
-        (e) => e.value === "First Name"
-      );
-      if (!hasFirstNameColumn) {
-        newHeaders.push(getNewCell({ value: "First Name", readOnly: true }));
-      }
-      // add Mobile column if not present
-      const hasMobileColumn = newHeaders.find((e) => e.value === "Mobile");
-      if (!hasMobileColumn) {
-        newHeaders.push(getNewCell({ value: "Mobile", readOnly: true }));
-      }
-      // add Survey column if not present
-      const hasSurveyColumn = newHeaders.find((e) => e.value === "Survey");
-      if (!hasSurveyColumn) {
-        newHeaders.push(getNewCell({ value: "Survey", readOnly: true }));
-      }
-      // set body
-      const newRows = body.map((row) => {
-        const { surveys } = state;
-        const tmp = [];
-        for (let i = 0; i < newHeaders.length; i++) {
-          const isSurvey = newHeaders[i].value === "Survey";
-          const type = isSurvey ? "survey" : "text";
-          const value = row[i] || (surveys.length ? surveys[0].name : "");
-          tmp.push(getNewCell({ type, value }));
-        }
-        return tmp;
-      });
+      // const newHeaders = headers.map((h, i) => getNewCell({ value: h }));
+      // // set body
+      // const newRows = body.map((row) => {
+      //   const tmp = [];
+      //   for (let i = 0; i < newHeaders.length; i++) {
+      //     const value = row[i] || "";
+      //     tmp.push(getNewCell({ value }));
+      //     console.log({ tmp });
+      //   }
+      //   return tmp;
+      // });
 
-      return { ...state, headers: newHeaders, rows: newRows };
+      const newRows = [];
+      for (let i = 0; i < body.length; i++) {
+        const tmp = [];
+        for (let j = 0; j < body[0].length; j++) {
+          const value = body[i][j] || "";
+          tmp.push(getNewCell({ value }));
+        }
+
+        const isEmpty = tmp.every((element, index, array) => {
+          return element.value != "";
+        });
+
+        console.log(isEmpty);
+        if (!isEmpty) {
+          newRows.push(tmp);
+        }
+      }
+
+      console.log({ newRows });
+
+      return { ...state, rows: newRows };
     }
     case VALIDATE_CELLS: {
       const { headers, rows } = state;
@@ -286,7 +285,7 @@ export default (state = initialState, action) => {
 
     // }
     case LIST_SURVEYS: {
-      return { ...state, surveys: action.surveys };
+      return { ...state };
     }
     case ALL_DATA: {
       return { ...state };

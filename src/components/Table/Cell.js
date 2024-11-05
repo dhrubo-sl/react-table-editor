@@ -1,14 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
 import UncontrolledCell from "./CellUncontrolled";
-import SelectSurvey from "./SelectSurvey";
 
 import {
   addColumn,
-  deleteColumn,
   addRow,
+  deleteColumn,
   deleteRow,
-  updateCell
+  updateCell,
 } from "../../reducers";
 
 class Cell extends React.Component {
@@ -64,7 +63,7 @@ class Cell extends React.Component {
       id,
       type,
       errors,
-      isHeader
+      isHeader,
     } = this.props;
     const { mouseOver } = this.state;
     const showAddColumnBtn = onAddColumn && mouseOver && isHeader;
@@ -83,10 +82,6 @@ class Cell extends React.Component {
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
       >
-        {type === "survey" && (
-          <SelectSurvey onChange={this.onChange} defaultValue={value} />
-        )}
-
         {type === "text" && (
           <UncontrolledCell
             id={id}
@@ -114,13 +109,10 @@ const mapDispatchToProps = {
   onAddRow: addRow,
   onDeleteColumn: deleteColumn,
   onDeleteRow: deleteRow,
-  onCellChange: updateCell
+  onCellChange: updateCell,
 };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(Cell);
+export default connect(null, mapDispatchToProps)(Cell);
 
 const DeleteRow = ({ onDeleteRow, row }) => (
   <div className={"delete-row"} onClick={() => onDeleteRow(row)}>

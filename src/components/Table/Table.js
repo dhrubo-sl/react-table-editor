@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import ExcelFileInput from "../ExcelFileInput";
 import Body from "./Body";
-import Headers from "./Headers";
 
 import { addRow, getAllData, validateCells } from "../../reducers";
 
@@ -26,7 +25,7 @@ class Table extends React.Component {
         </div>
         <div className={"table-wrapper"}>
           <div className={"table"}>
-            <Headers />
+            {/* <Headers /> */}
             <Body />
           </div>
         </div>

@@ -1,6 +1,6 @@
+import * as csv from "papaparse";
 import React from "react";
 import { connect } from "react-redux";
-import * as XLSX from "xlsx";
 import { setTable } from "../reducers";
 
 class ExcelFileInput extends React.Component {
@@ -9,17 +9,15 @@ class ExcelFileInput extends React.Component {
     this.handleFile = this.handleFile.bind(this);
   }
   handleFile(file) {
-    const reader = new FileReader();
-    const rABS = !!reader.readAsBinaryString;
-    reader.onload = ({ target: { result } }) => {
-      const wb = XLSX.read(result, { type: rABS ? "binary" : "array" });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      this.props.setTable(data);
-    };
-    if (rABS) reader.readAsBinaryString(file);
-    else reader.readAsArrayBuffer(file);
+    csv.parse(file, {
+      complete: (res) => {
+        console.log(res.data);
+        this.props.setTable(res.data);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
   render() {
     return <DataInput handleFile={this.handleFile} />;
