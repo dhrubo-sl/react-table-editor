@@ -1,4 +1,3 @@
-import { parsePhoneNumber } from "libphonenumber-js";
 import { request } from "../services/api.service";
 
 const ADD_COLUMN = "ADD_COLUMN";
@@ -60,66 +59,10 @@ const getNewCell = ({ value = "", readOnly = null, type = "text" } = {}) => {
     value,
     readOnly: false,
   };
-
-  // if (readOnly !== null) {
-  //   cell.readOnly = readOnly;
-  // } else if (
-  //   value === "Survey" ||
-  //   value === "First Name" ||
-  //   value === "Mobile"
-  // ) {
-  //   cell.readOnly = true;
-  // }
-
-  // if (value === "Mobile") {
-  //   cell.validate = validateMobileNumber;
-  //   cell.parse = parseMobileNumber;
-  // }
-
   return cell;
 };
 
-const validateMobileNumber = (number) => {
-  try {
-    const phoneNumber = parsePhoneNumber(number, "AU");
-    return phoneNumber.isValid();
-  } catch (error) {
-    return false;
-  }
-};
-
-const parseMobileNumber = (number) => {
-  try {
-    const phoneNumber = parsePhoneNumber(number, "AU");
-    return phoneNumber.formatInternational();
-  } catch (error) {
-    return number;
-  }
-};
-
 const initialState = {
-  // headers: [
-  //   {
-  //     id: 1,
-  //     type: "text",
-  //     value: "First Name",
-  //     readOnly: true,
-  //   },
-  //   {
-  //     id: 2,
-  //     type: "text",
-  //     value: "Mobile",
-  //     readOnly: true,
-  //     validate: validateMobileNumber,
-  //     parse: parseMobileNumber,
-  //   },
-  //   {
-  //     id: 3,
-  //     type: "text",
-  //     value: "Email",
-  //     readOnly: true,
-  //   },
-  // ],
   rows: [],
 };
 
@@ -129,10 +72,11 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case ADD_COLUMN:
       const { after } = action;
+      const oldHeaders = state.rows[0];
       const newHeader = getNewCell();
       // add new header cell to existing header row
-      const headersLeft = [...state.headers].slice(0, after + 1);
-      const headersRight = [...state.headers].slice(after + 1);
+      const headersLeft = [...oldHeaders].slice(0, after + 1);
+      const headersRight = [...oldHeaders].slice(after + 1);
       const headers = [...headersLeft, newHeader, ...headersRight];
       // add new column to existing rows
       const rows = state.rows.map((row) => {
@@ -143,12 +87,13 @@ export default (state = initialState, action) => {
         return newRow;
       });
 
-      return { ...state, headers, rows };
+      return { ...state, rows };
+
     case DELETE_COLUMN: {
       const { column = 0 } = action;
-      const headersLeft = [...state.headers].slice(0, column);
-      const headersRight = [...state.headers].slice(column + 1);
-      const headers = [...headersLeft, ...headersRight];
+      // const headersLeft = [...state.headers].slice(0, column);
+      // const headersRight = [...state.headers].slice(column + 1);
+      // const headers = [...headersLeft, ...headersRight];
 
       const rows = state.rows.map((row) => {
         const cellsLeft = [...row].slice(0, column);
@@ -163,11 +108,9 @@ export default (state = initialState, action) => {
     }
     case ADD_ROW: {
       const { after = 0 } = action;
-      const newColumns = state.headers.map((h) => {
-        const isSurvey = h.value === "Survey";
-        const type = isSurvey ? "survey" : "text";
-        const value =
-          isSurvey && state.surveys.length === 1 ? state.surveys[0].name : "";
+      const newColumns = state.rows[0].map((h) => {
+        const type = "text";
+        const value = "";
         return getNewCell({ type, value });
       });
       const newRow = [newColumns];
@@ -211,57 +154,31 @@ export default (state = initialState, action) => {
     }
     case SET_TABLE: {
       const { rows } = action;
-      const headers = rows[0];
-      const body = rows;
-      // set headers
-      // const newHeaders = headers.map((h, i) => getNewCell({ value: h }));
-      // // set body
-      // const newRows = body.map((row) => {
-      //   const tmp = [];
-      //   for (let i = 0; i < newHeaders.length; i++) {
-      //     const value = row[i] || "";
-      //     tmp.push(getNewCell({ value }));
-      //     console.log({ tmp });
-      //   }
-      //   return tmp;
-      // });
+      const totalRows = rows.length;
+      const columnLength = rows[0].length;
 
       const newRows = [];
-      for (let i = 0; i < body.length; i++) {
+      for (let i = 0; i < totalRows; i++) {
         const tmp = [];
-        for (let j = 0; j < body[0].length; j++) {
-          const value = body[i][j] || "";
+
+        for (let j = 0; j < columnLength; j++) {
+          const value = rows[i][j] || "";
           tmp.push(getNewCell({ value }));
         }
 
-        const isEmpty = tmp.every((element, index, array) => {
+        const hasValue = tmp.some((element, index, array) => {
           return element.value != "";
         });
 
-        console.log(isEmpty);
-        if (!isEmpty) {
+        if (hasValue) {
           newRows.push(tmp);
         }
       }
 
-      console.log({ newRows });
-
       return { ...state, rows: newRows };
     }
     case VALIDATE_CELLS: {
-      const { headers, rows } = state;
-      const newRows = rows.map((row) => {
-        return row.map((cell, i) => {
-          if (headers[i].validate) {
-            const isValid = headers[i].validate(cell.value);
-            const updatedCell = { ...cell };
-            updatedCell.errors = isValid ? [] : ["Number not valid"];
-            return updatedCell;
-          }
-          return cell;
-        });
-      });
-      return { ...state, rows: newRows };
+      return { ...state };
     }
     case PARSE_CELLS: {
       const { headers, rows } = state;
@@ -281,9 +198,6 @@ export default (state = initialState, action) => {
       });
       return { ...state, rows: newRows };
     }
-    // case CREATE_PATIENTS_AND_SEND_SURVEYS: {
-
-    // }
     case LIST_SURVEYS: {
       return { ...state };
     }

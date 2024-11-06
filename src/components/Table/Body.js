@@ -10,7 +10,7 @@ class Body extends React.Component {
     const { rows } = this.props;
     const cells = rows[index];
     return (
-      <div style={{ ...style, display: "flex" }} key={index}>
+      <div style={{ ...style, display: "flex", padding: "30px" }} key={index}>
         <Row cells={cells} row={index} isLastRow={index === rows.length - 1} />
       </div>
     );
@@ -18,8 +18,6 @@ class Body extends React.Component {
 
   render() {
     const { rows } = this.props;
-    console.log(rows.length);
-
     return (
       <List
         height={500} // Height of the list viewport

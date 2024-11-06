@@ -66,12 +66,11 @@ class Cell extends React.Component {
       isHeader,
     } = this.props;
     const { mouseOver } = this.state;
-    const showAddColumnBtn = onAddColumn && mouseOver && isHeader;
-    const showDeleteColumnBtn =
-      onDeleteColumn && !readOnly && mouseOver && isHeader;
-    const showAddRowBtn = false && onAddRow && mouseOver && column === 0;
-    const showDeleteRowBtn =
-      onDeleteRow && mouseOver && column === 0 && !isHeader;
+
+    const showAddColumnBtn = false;
+    const showDeleteColumnBtn = false;
+    const showAddRowBtn = false;
+    const showDeleteRowBtn = false && !isHeader;
     const hasErrors = Array.isArray(errors) && errors.length > 0;
 
     return (
@@ -128,7 +127,7 @@ const DeleteColumn = ({ onDeleteColumn, column }) => (
 
 const AddRow = ({ onAddRow, row }) => (
   <>
-    <div className={"add-row add-row-before"}>B+</div>
+    <div className={"add-row add-row-before"}>Bf+</div>
     <div className={"add-row add-row-after"}>Af+</div>
   </>
 );
